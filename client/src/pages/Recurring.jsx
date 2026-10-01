@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import MainLayout from '../layouts/MainLayout.jsx';
-import Modal from '../components/Modal.jsx';
+import Model from '../components/model.jsx';
 import Loader from '../components/Loader.jsx';
 import ErrorMessage from '../components/ErrorMessage.jsx';
 import EmptyState from '../components/EmptyState.jsx';
@@ -32,7 +32,7 @@ export default function Recurring() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const [modalOpen, setModalOpen] = useState(false);
+  const [ModelOpen, setModelOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
 
@@ -94,7 +94,7 @@ export default function Recurring() {
         endDate: form.endDate || null,
       });
 
-      setModalOpen(false);
+      setModelOpen(false);
 
       setForm({
         type: 'expense',
@@ -149,15 +149,15 @@ export default function Recurring() {
     (c) => c.type === form.type
   );
 
-  const openModal = () => {
+  const openModel = () => {
     setFormError('');
-    setModalOpen(true);
+    setModelOpen(true);
   };
 
-  const closeModal = () => {
+  const closeModel = () => {
     if (submitting) return;
 
-    setModalOpen(false);
+    setModelOpen(false);
     setFormError('');
   };
 
@@ -182,7 +182,7 @@ export default function Recurring() {
 
           <button
             className="btn btn-primary"
-            onClick={openModal}
+            onClick={openModel}
           >
             <IconPlus width={16} height={16} />
             New Recurring Rule
@@ -289,10 +289,10 @@ export default function Recurring() {
         )}
       </div>
 
-      {modalOpen && (
-        <Modal
+      {ModelOpen && (
+        <Model
           title="New Recurring Rule"
-          onClose={closeModal}
+          onClose={closeModel}
         >
           <form onSubmit={handleCreate}>
             {formError && (
@@ -476,7 +476,7 @@ export default function Recurring() {
                 type="button"
                 className="btn btn-secondary"
                 style={{ flex: 1 }}
-                onClick={closeModal}
+                onClick={closeModel}
                 disabled={submitting}
               >
                 Cancel
@@ -494,7 +494,7 @@ export default function Recurring() {
               </button>
             </div>
           </form>
-        </Modal>
+        </Model>
       )}
     </MainLayout>
   );

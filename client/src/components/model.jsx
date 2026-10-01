@@ -12,13 +12,13 @@ export default function Model({ title, onClose, children, maxWidth = 480 }) {
 
   return (
     <div
-      className="modal-backdrop"
+      className="model-backdrop"
       onMouseDown={(e) =>
         e.target === e.currentTarget && onClose()
       }
     >
-      <div className="modal-box" style={{ maxWidth }}>
-        <div className="modal-header">
+      <div className="model-box" style={{ maxWidth }}>
+        <div className="model-header">
           <h3>{title}</h3>
 
           <button

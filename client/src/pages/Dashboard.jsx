@@ -7,7 +7,7 @@ import SpendingLineChart from '../components/charts/SpendingLineChart.jsx';
 import Loader from '../components/Loader.jsx';
 import ErrorMessage from '../components/ErrorMessage.jsx';
 import EmptyState from '../components/EmptyState.jsx';
-import Modal from '../components/Modal.jsx';
+import Model from '../components/model.jsx';
 import TransactionForm from '../components/TransactionForm.jsx';
 import { reportService } from '../services/reportService.js';
 import { transactionService } from '../services/transactionService.js';
@@ -31,7 +31,7 @@ export default function Dashboard() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [showAddModal, setShowAddModal] = useState(false);
+  const [showAddModel, setShowAddModel] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   const load = useCallback(async () => {
