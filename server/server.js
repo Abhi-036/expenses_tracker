@@ -3,6 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
+
 const connectDB = require('./config/db');
 const { errorHandler, notFound } = require('./middleware/errorHandler');
 
@@ -29,28 +30,45 @@ if (process.env.NODE_ENV !== 'test') {
   app.use(morgan('dev'));
 }
 
+/*
+ * Health check
+ * This endpoint does not require MongoDB.
+ */
 app.get('/api/health', (req, res) => {
-  res.json({
+  res.status(200).json({
     success: true,
     message: 'API is running',
     timestamp: new Date().toISOString(),
   });
 });
 
-// Vercel loads the exported Express app instead of running `node server.js`.
-// Connect lazily on API requests so local startup remains unchanged and the
-// MongoDB connection is reused across warm serverless invocations.
+/*
+ * Connect MongoDB before database-dependent API routes.
+ * db.js already caches the connection for Vercel.
+ */
 if (process.env.NODE_ENV !== 'test') {
   app.use(async (req, res, next) => {
     try {
       await connectDB();
       next();
     } catch (error) {
-      next(error);
+      console.error('MongoDB connection failed:', error.message);
+
+      return res.status(500).json({
+        success: false,
+        message: 'Database connection failed',
+        error:
+          process.env.NODE_ENV === 'production'
+            ? 'Unable to connect to database'
+            : error.message,
+      });
     }
   });
 }
 
+/*
+ * API routes
+ */
 app.use('/api/auth', authRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/budgets', budgetRoutes);
@@ -58,17 +76,30 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/recurring-transactions', recurringRoutes);
 app.use('/api/reports', reportRoutes);
 
+/*
+ * Unknown route
+ */
 app.use(notFound);
+
+/*
+ * Global error handler
+ */
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
+/*
+ * Local development only.
+ * Vercel imports `app` directly.
+ */
 if (require.main === module) {
   connectDB()
     .then(() => {
       app.listen(PORT, () => {
         console.log(
-          `Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`
+          `Server running in ${
+            process.env.NODE_ENV || 'development'
+          } mode on port ${PORT}`
         );
       });
     })
