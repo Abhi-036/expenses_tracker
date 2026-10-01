@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { IconX } from './icons.jsx';
 
-export default function Modal({ title, onClose, children, maxWidth = 480 }) {
+export default function Model({ title, onClose, children, maxWidth = 480 }) {
   useEffect(() => {
     const onKey = (e) => e.key === 'Escape' && onClose();
 
