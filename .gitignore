@@ -1,11 +1,10 @@
 node_modules/
 dist/
-.env
-.env.*
-!.env.example
 .vercel/
 .DS_Store
 npm-debug.log*
 
-.vercel
-.env*
+# Secrets - never commit real values
+.env
+.env.*
+!.env.example

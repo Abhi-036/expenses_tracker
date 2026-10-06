@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import MainLayout from '../layouts/MainLayout.jsx';
-import Model from '../components/model.jsx';
+import Modal from '../components/Modal.jsx';
 import Loader from '../components/Loader.jsx';
 import ErrorMessage from '../components/ErrorMessage.jsx';
 import { categoryService } from '../services/categoryService.js';
@@ -15,7 +15,7 @@ export default function Categories() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [ModelOpen, setModelOpen] = useState(false);
+  const [ModalOpen, setModalOpen] = useState(false);
 
   const [form, setForm] = useState({
     name: '',
@@ -59,7 +59,7 @@ export default function Categories() {
     try {
       await categoryService.create(form);
 
-      setModelOpen(false);
+      setModalOpen(false);
 
       setForm({
         name: '',
@@ -113,7 +113,7 @@ export default function Categories() {
 
         <button
           className="btn btn-primary"
-          onClick={() => setModelOpen(true)}
+          onClick={() => setModalOpen(true)}
         >
           <IconPlus width={16} height={16} />
           New Category
@@ -175,10 +175,10 @@ export default function Categories() {
         </div>
       )}
 
-      {ModelOpen && (
-        <Model
+      {ModalOpen && (
+        <Modal
           title="New Category"
-          onClose={() => setModelOpen(false)}
+          onClose={() => setModalOpen(false)}
         >
           <form onSubmit={handleCreate}>
             {formError && (
@@ -275,7 +275,7 @@ export default function Categories() {
                 className="btn btn-secondary"
                 style={{ flex: 1 }}
                 onClick={() =>
-                  setModelOpen(false)
+                  setModalOpen(false)
                 }
               >
                 Cancel
@@ -293,7 +293,7 @@ export default function Categories() {
               </button>
             </div>
           </form>
-        </Model>
+        </Modal>
       )}
     </MainLayout>
   );

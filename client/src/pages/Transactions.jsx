@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import MainLayout from '../layouts/MainLayout.jsx';
 import TransactionTable from '../components/TransactionTable.jsx';
 import TransactionForm from '../components/TransactionForm.jsx';
-import Model from '../components/model.jsx';
+import Modal from '../components/Modal.jsx';
 import Loader from '../components/Loader.jsx';
 import ErrorMessage from '../components/ErrorMessage.jsx';
 import { transactionService } from '../services/transactionService.js';
@@ -21,7 +21,7 @@ export default function Transactions() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [ModelOpen, setModelOpen] = useState(false);
+  const [ModalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -90,7 +90,7 @@ export default function Transactions() {
         await transactionService.create(data);
       }
 
-      setModelOpen(false);
+      setModalOpen(false);
       setEditing(null);
 
       await load();
@@ -141,7 +141,7 @@ export default function Transactions() {
             className="btn btn-primary"
             onClick={() => {
               setEditing(null);
-              setModelOpen(true);
+              setModalOpen(true);
             }}
           >
             <IconPlus
@@ -274,7 +274,7 @@ export default function Transactions() {
               currency={user?.currency}
               onEdit={(tx) => {
                 setEditing(tx);
-                setModelOpen(true);
+                setModalOpen(true);
               }}
               onDelete={handleDelete}
             />
@@ -301,15 +301,15 @@ export default function Transactions() {
         )}
       </div>
 
-      {ModelOpen && (
-        <Model
+      {ModalOpen && (
+        <Modal
           title={
             editing
               ? 'Edit Transaction'
               : 'Add Transaction'
           }
           onClose={() => {
-            setModelOpen(false);
+            setModalOpen(false);
             setEditing(null);
           }}
         >
@@ -318,12 +318,12 @@ export default function Transactions() {
             categories={categories}
             onSubmit={handleSubmit}
             onCancel={() => {
-              setModelOpen(false);
+              setModalOpen(false);
               setEditing(null);
             }}
             submitting={submitting}
           />
-        </Model>
+        </Modal>
       )}
     </MainLayout>
   );

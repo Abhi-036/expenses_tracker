@@ -1,9 +1,10 @@
 require('dotenv').config();
-
+if (process.env.DNS_SERVERS) {
+  require('dns').setServers(process.env.DNS_SERVERS.split(',').map((s) => s.trim()));
+}
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
-
 const connectDB = require('./config/db');
 const { errorHandler, notFound } = require('./middleware/errorHandler');
 
@@ -16,9 +17,25 @@ const reportRoutes = require('./routes/reportRoutes');
 
 const app = express();
 
+// Allowed browser origins. On Vercel the client and API share one domain, so
+// same-origin requests work without CORS; CLIENT_URL (comma-separated) is for
+// local dev or a separately hosted client.
+const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173')
+  .split(',')
+  .map((o) => o.trim().replace(/\/$/, ''))
+  .filter(Boolean);
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      if (process.env.VERCEL_URL && origin === `https://${process.env.VERCEL_URL}`) {
+        return callback(null, true);
+      }
+      return callback(null, false);
+    },
     credentials: true,
   })
 );
@@ -30,45 +47,28 @@ if (process.env.NODE_ENV !== 'test') {
   app.use(morgan('dev'));
 }
 
-/*
- * Health check
- * This endpoint does not require MongoDB.
- */
 app.get('/api/health', (req, res) => {
-  res.status(200).json({
+  res.json({
     success: true,
     message: 'API is running',
     timestamp: new Date().toISOString(),
   });
 });
 
-/*
- * Connect MongoDB before database-dependent API routes.
- * db.js already caches the connection for Vercel.
- */
+// Vercel loads the exported Express app instead of running `node server.js`.
+// Connect lazily on API requests so local startup remains unchanged and the
+// MongoDB connection is reused across warm serverless invocations.
 if (process.env.NODE_ENV !== 'test') {
   app.use(async (req, res, next) => {
     try {
       await connectDB();
       next();
     } catch (error) {
-      console.error('MongoDB connection failed:', error.message);
-
-      return res.status(500).json({
-        success: false,
-        message: 'Database connection failed',
-        error:
-          process.env.NODE_ENV === 'production'
-            ? 'Unable to connect to database'
-            : error.message,
-      });
+      next(error);
     }
   });
 }
 
-/*
- * API routes
- */
 app.use('/api/auth', authRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/budgets', budgetRoutes);
@@ -76,30 +76,17 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/recurring-transactions', recurringRoutes);
 app.use('/api/reports', reportRoutes);
 
-/*
- * Unknown route
- */
 app.use(notFound);
-
-/*
- * Global error handler
- */
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
-/*
- * Local development only.
- * Vercel imports `app` directly.
- */
 if (require.main === module) {
   connectDB()
     .then(() => {
       app.listen(PORT, () => {
         console.log(
-          `Server running in ${
-            process.env.NODE_ENV || 'development'
-          } mode on port ${PORT}`
+          `Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`
         );
       });
     })

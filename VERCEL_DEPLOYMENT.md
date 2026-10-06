@@ -1,76 +1,48 @@
 # Vercel Deployment Guide
 
-## 1. Local development remains unchanged
+## How it is wired
 
-Client:
+| Path | Served by |
+|------|-----------|
+| `/api/*` | Serverless function `api/index.js` -> Express app in `server/server.js` |
+| everything else | Static Vite build in `client/dist` (SPA fallback to `index.html`) |
 
-```powershell
-cd client
-npm install
-npm run dev
-```
+`vercel.json` (project root) contains the build command, output directory and rewrites.
+The root `package.json` lists the API dependencies that Vercel installs for the function.
 
-Open: `http://localhost:5173/`
+## 1. Database
 
-Server:
+Vercel cannot reach MongoDB on your PC. Use MongoDB Atlas:
+- Create a free cluster and a database user.
+- Network Access -> allow `0.0.0.0/0` (Vercel uses dynamic IPs).
+- Copy the connection string and add a database name, e.g.
+  `mongodb+srv://USER:PASSWORD@CLUSTER.mongodb.net/expenses_tracker?retryWrites=true&w=majority`
 
-```powershell
-cd server
-npm install
-npm run dev
-```
-
-Expected server message:
+## 2. Environment variables (Vercel -> Project -> Settings -> Environment Variables)
 
 ```text
-Server running in development mode on port 5000
-```
-
-API health check:
-
-`http://localhost:5000/api/health`
-
-## 2. Production database
-
-Vercel cannot reach a MongoDB server running on your own PC. Create a MongoDB Atlas database and use its connection string as `MONGO_URI`.
-
-Do not put the real production URI in this repository.
-
-## 3. Vercel environment variables
-
-Set these in the Vercel project for Production (and Preview if desired):
-
-```text
-MONGO_URI=mongodb+srv://<username>:<password>@<cluster>/<database>?retryWrites=true&w=majority
-JWT_SECRET=<long-random-production-secret>
+MONGO_URI=<your Atlas connection string>
+JWT_SECRET=<long random string>
 JWT_EXPIRES_IN=7d
-CLIENT_URL=https://<your-vercel-domain>
 NODE_ENV=production
 ```
 
-`VITE_API_URL` is not required for production because the frontend uses same-origin `/api` by default.
+`CLIENT_URL` is optional (same-origin on Vercel). Do NOT set `VITE_API_URL`.
+Redeploy after changing variables.
 
-## 4. Deploy from the project root
+## 3. Deploy
 
-Run these commands from the folder containing `vercel.json`:
+Import the GitHub repo at https://vercel.com/new. Keep **Root Directory** as the repo root,
+set **Framework Preset** to **Other**, and leave the build settings on defaults
+(they come from `vercel.json`). Click **Deploy**.
 
-```powershell
-npm install -g vercel@latest
-vercel login
-vercel link
-vercel deploy --prod
+Check `https://<your-project>.vercel.app/api/health` - it should return `{"success":true,...}`.
+
+## Local development (unchanged)
+
+```bash
+cd server && npm install && npm run dev     # http://localhost:5000
+cd client && npm install && npm run dev     # http://localhost:5173
 ```
 
-Do not deploy from only `client/` or only `server/` when using the included Vercel Services configuration.
-
-## 5. Routing
-
-- `/` and frontend routes -> `client`
-- `/api` and `/api/*` -> `server`
-- Backend routes keep their existing `/api/...` namespace.
-
-No `/api` was removed from the Express routes.
-
-
-## MongoDB note
-The local development URI is `mongodb://127.0.0.1:27017/expenses_tracker`. This works when the server runs on your Windows PC. Vercel cannot connect to MongoDB running on your PC at `localhost`; production deployment requires a remotely reachable MongoDB instance.
+Copy `server/.env.example` to `server/.env` and fill it in. Never commit `.env` files.

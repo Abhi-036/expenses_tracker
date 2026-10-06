@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { IconX } from './icons.jsx';
 
-export default function Model({ title, onClose, children, maxWidth = 480 }) {
+export default function Modal({ title, onClose, children, maxWidth = 480 }) {
   useEffect(() => {
     const onKey = (e) => e.key === 'Escape' && onClose();
 
@@ -12,13 +12,13 @@ export default function Model({ title, onClose, children, maxWidth = 480 }) {
 
   return (
     <div
-      className="model-backdrop"
+      className="modal-backdrop"
       onMouseDown={(e) =>
         e.target === e.currentTarget && onClose()
       }
     >
-      <div className="model-box" style={{ maxWidth }}>
-        <div className="model-header">
+      <div className="modal-box" style={{ maxWidth }}>
+        <div className="modal-header">
           <h3>{title}</h3>
 
           <button

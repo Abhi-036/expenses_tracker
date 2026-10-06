@@ -149,14 +149,14 @@ $ npm test
 3.8 Building for Production
 14.	Frontend: inside client, run npm run build — this outputs static, optimized files to client/dist
 15.	Preview the production build locally (optional): npm run preview
-16.	The project includes a root vercel.json that deploys client/ and server/ together using Vercel Services.
+16.	The project includes a root vercel.json: the Vite client in client/ is built to client/dist and served as static files, and the Express API runs as a Vercel serverless function (api/index.js).
 17.	For Vercel production, use MongoDB Atlas (or another externally reachable MongoDB) and set MONGO_URI, JWT_SECRET, JWT_EXPIRES_IN, CLIENT_URL, and NODE_ENV=production in Vercel Environment Variables.
 18.	The frontend uses same-origin /api in production, so VITE_API_URL does not need to contain localhost. Keep client/.env local-only.
-19.	Deploy from the project root (the folder containing vercel.json) with the current Vercel CLI: vercel login, vercel link, vercel deploy --prod
+19.	Deploy by importing the GitHub repo in Vercel (Framework Preset: Other, Root Directory: the repo root) or with the Vercel CLI from the project root: vercel login, vercel link, vercel deploy --prod
 20.	Keep the existing local setup unchanged: client http://localhost:5173/ and server http://localhost:5000/
 
 3.9 Vercel Deployment Notes
-•	vercel.json defines two services: client (Vite) and server (Express), with /api/* routed to the server and all other paths routed to the client.
+•	vercel.json builds the client into client/dist, rewrites /api/* to the serverless function api/index.js (which loads server/server.js), and rewrites every other path to /index.html so React Router deep links work.
 •	server/server.js exports the Express app for Vercel while still starting normally with npm run dev or npm start when executed directly.
 •	server/config/db.js caches the Mongoose connection so warm Vercel invocations reuse the existing connection.
 •	The local server message remains: “Server running in development mode on port 5000”.

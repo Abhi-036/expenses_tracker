@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import MainLayout from '../layouts/MainLayout.jsx';
 import BudgetCard from '../components/BudgetCard.jsx';
 import BudgetForm from '../components/BudgetForm.jsx';
-import Modal from '../components/model.jsx';
+import Modal from '../components/Modal.jsx';
 import Loader from '../components/Loader.jsx';
 import ErrorMessage from '../components/ErrorMessage.jsx';
 import EmptyState from '../components/EmptyState.jsx';
@@ -18,7 +18,7 @@ export default function Budgets() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [modelOpen, setModelOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -58,7 +58,7 @@ export default function Budgets() {
         await budgetService.create(data);
       }
 
-      setModelOpen(false);
+      setModalOpen(false);
       setEditing(null);
 
       await load();
