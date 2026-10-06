@@ -112,9 +112,6 @@ export default function Login() {
             marginTop: 14
           }}
         >
-          Demo: demo@expensetracker.app / demo1234
-          {' '}
-          (after running <code>npm run seed</code>)
         </div>
       </div>
     </div>
