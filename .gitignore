@@ -8,3 +8,6 @@ npm-debug.log*
 .env
 .env.*
 !.env.example
+
+.vercel
+.env*
