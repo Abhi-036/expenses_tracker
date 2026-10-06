@@ -7,7 +7,7 @@
     "node": "22.x"
   },
   "scripts": {
-    "build": "npm --prefix client install --no-audit --no-fund && npm --prefix client run build",
+       "build": "npm --prefix client install --include=dev --no-audit --no-fund && npm --prefix client run build",
     "dev:client": "npm --prefix client run dev",
     "dev:server": "npm --prefix server run dev"
   },
