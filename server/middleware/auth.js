@@ -1,5 +1,7 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { getSecret } = require('../utils/generateToken');
+
 
 // Protects routes: requires a valid "Bearer <token>" Authorization header.
 // Attaches the authenticated user (without password) to req.user.
@@ -15,7 +17,7 @@ const protect = async (req, res, next) => {
     }
 
     const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, getSecret());
 
     const user = await User.findById(decoded.id);
 

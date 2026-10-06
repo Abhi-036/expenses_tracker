@@ -17,7 +17,7 @@ const register = async (req, res, next) => {
         message: errors.array()[0].msg
       });
     }
-
+    generateToken.assertConfig();
     const { name, email, password } = req.body;
 
     const existing = await User.findOne({

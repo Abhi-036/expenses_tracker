@@ -48,9 +48,26 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 app.get('/api/health', (req, res) => {
+  // Safe diagnostics: shows whether settings exist, never their values.
+  const generateToken = require('./utils/generateToken');
+  let jwtConfigOk = true;
+  try {
+    generateToken.assertConfig();
+  } catch (e) {
+    jwtConfigOk = false;
+  }
+
   res.json({
     success: true,
     message: 'API is running',
+    version: 'auth-hardening-2',
+    config: {
+      mongoUriSet: Boolean(String(process.env.MONGO_URI || '').trim()),
+      jwtSecretSet: Boolean(String(process.env.JWT_SECRET || '').trim()),
+      jwtExpiresInRaw: process.env.JWT_EXPIRES_IN === undefined ? null : JSON.stringify(process.env.JWT_EXPIRES_IN),
+      jwtExpiresInUsed: generateToken.getExpiresIn(),
+      jwtConfigOk,
+    },
     timestamp: new Date().toISOString(),
   });
 });

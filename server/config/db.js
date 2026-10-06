@@ -11,12 +11,14 @@ const connectDB = async () => {
     return connectionPromise;
   }
 
-  if (!process.env.MONGO_URI) {
+    const uri = String(process.env.MONGO_URI || '').trim().replace(/^["'`]+|["'`]+$/g, '').trim();
+
+  if (!uri) {
     throw new Error('MONGO_URI is not defined');
   }
 
   connectionPromise = mongoose
-    .connect(process.env.MONGO_URI, { serverSelectionTimeoutMS: 8000 })
+    .connect(uri, { serverSelectionTimeoutMS: 8000 })
     .then((conn) => {
       console.log(`MongoDB connected: ${conn.connection.host}`);
       return conn.connection;
