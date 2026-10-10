@@ -15,32 +15,27 @@ const categoryRoutes = require('./routes/categoryRoutes');
 const recurringRoutes = require('./routes/recurringRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 
+
+const express = require('express');
+const cors = require('cors');
+
 const app = express();
 
-// Allowed browser origins. On Vercel the client and API share one domain, so
-// same-origin requests work without CORS; CLIENT_URL (comma-separated) is for
-// local dev or a separately hosted client.
-const allowedOrigins = (process.env.CLIENT_URL || 'http://localhost:5173')
-  .split(',')
-  .map((o) => o.trim().replace(/\/$/, ''))
-  .filter(Boolean);
-
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-      if (process.env.VERCEL_URL && origin === `https://${process.env.VERCEL_URL}`) {
-        return callback(null, true);
-      }
-      return callback(null, false);
-    },
-    credentials: true,
-  })
-);
+// PASTE CORS HERE — before your API routes
+app.use(cors({
+  origin: [
+    'http://localhost:5173',
+    'https://expensestracker-three-sooty.vercel.app'
+  ],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 
 app.use(express.json());
+
+// Your existing routes should remain below
+// app.use('/api/auth', authRoutes);
+
 app.use(express.urlencoded({ extended: true }));
 
 if (process.env.NODE_ENV !== 'test') {
